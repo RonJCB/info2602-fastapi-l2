@@ -10,8 +10,8 @@ class User(SQLModel, table=True):
     email:str = Field(index=True, unique=True)
     password:str
 #added 3 methods to the user class 
-#first one makes a intances of the class
-#second one 
+#first one makes a intances of the class(basically a new user object is created whenever the class User is called)
+#second one encrypts teh password using a cryptographic hash function
 #third one prints the instance to the console
     def __init__(self, username, email, password):
         self.username = username
@@ -23,3 +23,4 @@ class User(SQLModel, table=True):
 
     def __str__(self) ->str:
         return f"(User id = {self.id}, username = {self.username}, email = {self.email})"
+    #models.py define how the data is returned and processed by the db 
