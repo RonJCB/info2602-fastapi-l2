@@ -1,4 +1,5 @@
 import typer
+#from typing import Annotated
 from app.database import create_db_and_tables, get_session, drop_all
 from app.models import User
 from fastapi import Depends
@@ -47,12 +48,16 @@ def find_user_partial(username:str, email :str):
 #The command should accept 2 arguments limit and offset and return the appropriate result. 
 #limit should be defaulted to 10 and offset should be defaulted to 0
 @cli.command()
-def list_n_users(offm:int , limn:int):
+def list_n_users(offm = 0 , limn = 10):       
     with get_session() as db:
         users = db.exec(select(User).offset(offm).limit(limn)).all()
         print(users)
-#5 users in the database we can start from 0 and go to 3
-    
+#5 users in the database 
+
+
+#Exercise 3
+#Modify all the existing cli commands and add help
+#statements for all arguments and documentation for all the functions    
 @cli.command()
 #command searches the created database in memory
 #by referencing the name field
