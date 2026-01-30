@@ -24,14 +24,34 @@ def initialize():
 #allows you to find a user using a 
 #partial match of their email OR username.
 @cli.command()
-def findUserPartial(username:str, email :str):
-    with get_all_users as db:
-        user = db.exec(select(User).where(User.username == username)).first()
-        email = db.exec(select(User).where(User.email == email)).first()
-        if not user or email:
-            print(f"{user} or {email} not found in DB!")
-            return
-        print("User found: {user} with email {email}")
+#if the user enters EITHER an invalid usernaame or email 
+#it returns the correct tuple based on the VALID username or email
+def find_user_partial(username:str, email :str):
+    with get_session() as db:
+        findUser = db.exec(select(User).where(User.username == username)).first()
+
+        if findUser:
+            print(f"User found.Their data stored in tuple--> {findUser}")
+            return#return statements help filter the other elif structures
+        if not findUser:
+            email = db.exec(select(User).where(User.email == email)).first()
+        if not findUser and not email:
+             print(f'{username} or {email} not found in DB!')
+             return
+        if email:
+            print(f"User found.Their data is stored in tuple--> {email}")
+        
+#Exercise 2
+#Create cli command that allows you to list the first N users of the database to be used
+#by a paginated table.
+#The command should accept 2 arguments limit and offset and return the appropriate result. 
+#limit should be defaulted to 10 and offset should be defaulted to 0
+@cli.command()
+def list_n_users(offm:int , limn:int):
+    with get_session() as db:
+        users = db.exec(select(User).offset(offm).limit(limn)).all()
+        print(users)
+#5 users in the database we can start from 0 and go to 3
     
 @cli.command()
 #command searches the created database in memory
