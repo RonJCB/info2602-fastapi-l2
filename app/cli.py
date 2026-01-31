@@ -1,5 +1,5 @@
 import typer
-#from typing import Annotated
+from typing import Annotated
 from app.database import create_db_and_tables, get_session, drop_all
 from app.models import User
 from fastapi import Depends
@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 cli = typer.Typer()
 
-@cli.command()
+@cli.command(help = "Initializes the database with user information")
 def initialize():
     with get_session() as db: # Get a connection to the database
         drop_all() # delete all tables
@@ -24,10 +24,11 @@ def initialize():
 #Create a cli command that
 #allows you to find a user using a 
 #partial match of their email OR username.
-@cli.command()
+@cli.command(help = "Partial search involves matching EITHER username or email in the database")
 #if the user enters EITHER an invalid usernaame or email 
 #it returns the correct tuple based on the VALID username or email
-def find_user_partial(username:str, email :str):
+def find_user_partial(username: Annotated[str, typer.Argument(help ="Takes a username and finds that user in the database if it exists")], 
+                      email: Annotated[str, typer.Argument(help ="Takes an email and finds that email in the datbase if it exists")]):
     with get_session() as db:
         findUser = db.exec(select(User).where(User.username == username)).first()
 
@@ -47,10 +48,13 @@ def find_user_partial(username:str, email :str):
 #by a paginated table.
 #The command should accept 2 arguments limit and offset and return the appropriate result. 
 #limit should be defaulted to 10 and offset should be defaulted to 0
-@cli.command()
-def list_n_users(offm = 0 , limn = 10):       
+@cli.command(help = "Specifies a start and end point to search for in the database")
+def list_n_users(offm: Annotated[int, typer.Argument(help ="Lower limit of the database to search from")] = 0 , 
+                 limn: Annotated[int, typer.Argument(help ="Upper limit of the database to search from ")]= 10):       
     with get_session() as db:
         users = db.exec(select(User).offset(offm).limit(limn)).all()
+        if not users:
+            print("Users in specified range not found in db")
         print(users)
 #5 users in the database 
 
@@ -58,10 +62,11 @@ def list_n_users(offm = 0 , limn = 10):
 #Exercise 3
 #Modify all the existing cli commands and add help
 #statements for all arguments and documentation for all the functions    
-@cli.command()
+@cli.command(help = "Gets a specified user in the database")
 #command searches the created database in memory
 #by referencing the name field
-def get_user(username:str):
+
+def get_user(username:Annotated[str, typer.Argument(help ="Takes a username and searches for that attribute in the database")]):
     # The code for task 5.1 goes here. Once implemented, remove the line below that says "pass"
     with get_session() as db:
         user = db.exec(select(User).where(User.username == username)).first()
@@ -70,7 +75,7 @@ def get_user(username:str):
             return
         print(user)
 
-@cli.command()
+@cli.command(help= "Gets all users in the database")
 def get_all_users():
     # The code for task 5.2 goes here. Once implemented, remove the line below that says "pass"
     with get_session() as db:
@@ -83,8 +88,9 @@ def get_all_users():
                 print(user)
 
 
-@cli.command()
-def change_email(username: str, new_email:str):
+@cli.command(help = "Changes an email attribute by searching for a user in the datbase")
+def change_email(username: Annotated[str, typer.Argument(help ="Takes a username and searches for that person in the db")], 
+                 new_email:Annotated[str, typer.Argument(help ="Takes a newEmail parameter which is used to update the email attribute ")]):
     # The code for task 6 goes here. Once implemented, remove the line below that says "pass"
     with get_session() as db:
         #get first username that matchs
@@ -98,10 +104,12 @@ def change_email(username: str, new_email:str):
         print(f"Updated{user.username} email to {user.email}")
 
 
-@cli.command()
+@cli.command(help = "Creates a user instance by calling the user class")
 #safely add objects to the datbase
 #ensures transcations are safely discarded if username or email is taken
-def create_user(username: str, email:str, password: str):
+def create_user(username: Annotated[str, typer.Argument(help ="Takes a username and makes an instance of it by calling the User Class")],
+                 email:Annotated[str, typer.Argument(help ="Takes a email and makes an instance of it by calling the User Class")], 
+                 password: Annotated[str, typer.Argument(help ="Takes a password and makes an instance of it by calling the User Class")]):
     # The code for task 7 goes here. Once implemented, remove the line below that says "pass"
     with get_session() as db:
         newuser = User(username,email,password)#call our userobject we created
@@ -113,8 +121,8 @@ def create_user(username: str, email:str, password: str):
             print(f"{username} or {email} already taken!")
         else:
             print(newuser)
-@cli.command()
-def delete_user(username: str):
+@cli.command(help = "Deletes a user from the database")
+def delete_user(username: Annotated[str, typer.Argument(help ="Specifies a user to be deleted from the datbase table" )]):
     # The code for task 8 goes here. Once implemented, remove the line below that says "pass"
     #with get_session() as db:
      with get_session() as db:

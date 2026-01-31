@@ -4,6 +4,7 @@ from pwdlib import PasswordHash
 
 password_hash = PasswordHash.recommended()
 
+#can make multiple classes which can relate to each other
 class User(SQLModel, table=True):
     id: Optional[int] =  Field(default=None, primary_key=True)
     username:str = Field(index=True, unique=True)
@@ -24,3 +25,5 @@ class User(SQLModel, table=True):
     def __str__(self) ->str:
         return f"(User id = {self.id}, username = {self.username}, email = {self.email})"
     #models.py define how the data is returned and processed by the db 
+
+
