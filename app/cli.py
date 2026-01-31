@@ -49,8 +49,8 @@ def find_user_partial(username: Annotated[str, typer.Argument(help ="Takes a use
 #The command should accept 2 arguments limit and offset and return the appropriate result. 
 #limit should be defaulted to 10 and offset should be defaulted to 0
 @cli.command(help = "Specifies a start and end point to search for in the database")
-def list_n_users(offm: Annotated[int, typer.Argument(help ="Lower limit of the database to search from")] = 0 , 
-                 limn: Annotated[int, typer.Argument(help ="Upper limit of the database to search from ")]= 10):       
+def list_n_users(offm: Annotated[int, typer.Argument(help ="Lower limit of the database to search from", min = 0)]  , 
+                 limn: Annotated[int, typer.Argument(help ="Upper limit of the database to search from ", max = 10)]):       
     with get_session() as db:
         users = db.exec(select(User).offset(offm).limit(limn)).all()
         if not users:
